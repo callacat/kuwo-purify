@@ -118,7 +118,8 @@ n_alive2 = sum(1 for r in rows2 if r[6].startswith('活'))
 print(f'KUWO3B1 表② caller={len(rows2)} 活={n_alive2}')
 
 # ---------- 表③ 掐点候选（存活 caller 去重 + 风险自注） ----------
-VIP_HINT = re.compile(r'Lcn/kuwo/(?:mod/|peculiar/|base/bean/vipnew)|Ltian0/|Lcn/kuwo/base/utils/s2;')
+# VIP/破解链精确命名空间（按 KUWO-2/3a 判定画像）；泛 mod/ 会把 mod/mobilead(广告业务模块)误标——必须显式列破解路径
+VIP_HINT = re.compile(r'Lcn/kuwo/(?:mod/allpay|mod/nowplay|mod/theme|peculiar/|base/bean/vipnew|base/bean/quku|player/activities/EntryActivity)|Ltian0/|Lcn/kuwo/base/utils/s2;')
 cand = {}
 for src in [(r[0], r[1], r[2], r[4]) for r in rows1 if r[5].startswith('活')] + \
            [(r[0], r[1], r[2], f'{r[4]};->{r[5]}') for r in rows2 if r[6].startswith('活')]:
