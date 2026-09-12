@@ -117,19 +117,42 @@ for (ckey, cls, meth), (dexn, hdr, ln) in sorted(stat_seen.items()):
 n_alive2 = sum(1 for r in rows2 if r[6].startswith('活'))
 print(f'KUWO3B1 表② caller={len(rows2)} 活={n_alive2}')
 
-# ---------- 表③ 掐点候选（存活 caller 去重 + 风险自注） ----------
-# VIP/破解链精确命名空间（按 KUWO-2/3a 判定画像）；泛 mod/ 会把 mod/mobilead(广告业务模块)误标——必须显式列破解路径
-VIP_HINT = re.compile(r'Lcn/kuwo/(?:mod/allpay|mod/nowplay|mod/theme|peculiar/|base/bean/vipnew|base/bean/quku|player/activities/EntryActivity)|Ltian0/|Lcn/kuwo/base/utils/s2;')
+# ---------- 表③ 掐点候选（存活 caller 去重 + 风险自注带命中证据） ----------
+# VIP/破解链命名空间（按 KUWO-2/3a 判定画像）；不含 EntryActivity(启动/导航类,广告侧 startActivity 引用属常态,
+# 泛匹配会假阳性) 与泛 mod/；命中项逐条作证据输出,是否真属 VIP 依赖由老马判定。
+VIP_TOKENS = {
+    'tian0(引擎)': 'Ltian0/',
+    's2(native字符串)': 'Lcn/kuwo/base/utils/s2;',
+    'vipnew(VIPbean)': 'Lcn/kuwo/base/bean/vipnew',
+    'quku(权益bean)': 'Lcn/kuwo/base/bean/quku',
+    'allpay(支付破解)': 'Lcn/kuwo/mod/allpay',
+    'nowplay(播放权益)': 'Lcn/kuwo/mod/nowplay',
+    'theme(皮肤权益)': 'Lcn/kuwo/mod/theme',
+    'peculiar(会员提示)': 'Lcn/kuwo/peculiar',
+}
+VIP_HINT = re.compile('|'.join(re.escape(v) for v in VIP_TOKENS.values()))
+def vip_hits(ckey):
+    """返回该类 mod 侧命中的破解特征标签（证据，去重保序）。"""
+    found = []
+    for label, tok in VIP_TOKENS.items():
+        for p in mod_files.get(ckey, []):
+            if tok in open(p, encoding='utf-8', errors='replace').read():
+                found.append(label)
+                break
+    return found
 cand = {}
 for src in [(r[0], r[1], r[2], r[4]) for r in rows1 if r[5].startswith('活')] + \
            [(r[0], r[1], r[2], f'{r[4]};->{r[5]}') for r in rows2 if r[6].startswith('活')]:
     ckey = src[0]
     if ckey in cand:
         continue
-    mix = any(VIP_HINT.search(open(p, encoding='utf-8', errors='replace').read()) for p in mod_files.get(ckey, []))
-    risk = '混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员' if mix else \
-           ('caller 在 changed 名单(已被 mod 动过)——叠加修改前复核 diff 现状' if ckey in changed else
-            '独立业务 caller(未见 VIP 链引用)——波及面最小')
+    hits = vip_hits(ckey)
+    if hits:
+        risk = '混挂破解链特征[' + '+'.join(hits) + ']——掐该 caller 前先审这些依赖，防 P3 式崩会员'
+    elif ckey in changed:
+        risk = 'caller 在 changed 名单(已被 mod 动过)——叠加修改前复核 diff 现状'
+    else:
+        risk = '独立业务 caller(未见破解链引用)——波及面最小'
     cand[ckey] = (ckey, src[1], src[2][:70], src[3], risk)
 rows3 = sorted(cand.values())
 print(f'KUWO3B1 表③ 候选={len(rows3)}')
