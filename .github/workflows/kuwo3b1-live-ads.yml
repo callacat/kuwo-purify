@@ -1,0 +1,85 @@
+name: kuwo3b1-live-ads
+
+# KUWO-3b1：广告入口存活面+埋点 init 存活面反查（rid recvv1L7iC5va5 · 3b2 净化前置素材）
+# 输入=Release samples 双包（官方全 dex 反查 caller 是本单派明要求，重活全 runner——D7）。
+# 产物 docs/kuwo3b1-live-ads.md 三表（①广告业务入口存活 ②埋点init存活 ③掐点候选+风险自注），判定权在老马。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  liveads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 下载 baksmali 3.0.10
+        run: |
+          curl -sSL -o /usr/local/bin/baksmali.jar https://github.com/baksmali/smali/releases/download/3.0.10/baksmali-3.0.10-fat.jar
+          java -jar /usr/local/bin/baksmali.jar --version
+
+      - name: 拉双样本+changed清单 + sha256 全量校验
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work && cd work
+          gh release download samples -R "$GITHUB_REPOSITORY" -p 'kuwo-12.2.2.0-tiantian-mod.apk' -p 'kuwo-12.2.2.0-official.apk' -D .
+          echo "f2f20005e7234025383a517053703a922173fd05dbc7d6a48d09c62fe9b8732b  kuwo-12.2.2.0-tiantian-mod.apk" | sha256sum -c -
+          echo "04d89f31046d544be00a0c413bc5ea3ddd4040d3157bd2e96ca7a9194df0c882  kuwo-12.2.2.0-official.apk" | sha256sum -c -
+          gh release download kuwo1-artifacts -R "$GITHUB_REPOSITORY" -p 'changed-classes.txt' -D .
+          wc -l changed-classes.txt
+          df -h .
+
+      - name: 解包双侧 dex
+        run: |
+          cd work
+          python3 - <<'EOF'
+          import zipfile, os
+          os.makedirs('base-dex', exist_ok=True); os.makedirs('mod-dex', exist_ok=True)
+          for apk, out in [('kuwo-12.2.2.0-official.apk', 'base-dex'), ('kuwo-12.2.2.0-tiantian-mod.apk', 'mod-dex')]:
+              z = zipfile.ZipFile(apk)
+              dexs = [n for n in z.namelist() if n.startswith('classes') and n.endswith('.dex')]
+              for n in dexs:
+                  open(os.path.join(out, n), 'wb').write(z.read(n))
+              print(out, len(dexs), 'dex')
+          EOF
+
+      - name: baksmali 双侧全量反编译
+        run: |
+          cd work
+          for D in base-dex/classes*.dex; do N=$(basename "$D" .dex); java -Xmx4g -jar /usr/local/bin/baksmali.jar d "$D" -o "smali-base/$N"; done
+          for D in mod-dex/classes*.dex; do N=$(basename "$D" .dex); java -Xmx4g -jar /usr/local/bin/baksmali.jar d "$D" -o "smali-mod/$N"; done
+          echo "smali-base: $(find smali-base -name '*.smali' | wc -l) ｜ smali-mod: $(find smali-mod -name '*.smali' | wc -l)"
+
+      - name: 反查三表
+        run: |
+          cd work
+          python3 ../scripts/kuwo3b1_liveads.py "$PWD" | tee liveads-run.log
+          du -h diff-out/docs/kuwo3b1-live-ads.md
+
+      - name: 回写报告到仓库 docs/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          cp work/diff-out/docs/kuwo3b1-live-ads.md docs/kuwo3b1-live-ads.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/kuwo3b1-live-ads.md
+          git commit -m "docs(KUWO-3b1): 广告入口+埋点init存活面反查三表（官方caller→mod三态对照+候选风险自注）" || echo "无变更"
+          git pull --rebase origin main && git push origin main
+
+      - name: 清理版权物
+        if: always()
+        run: rm -rf work
