@@ -94,7 +94,10 @@ def caller_state(ckey, cls, meth):
             break
     if alive:
         return ('活-changed仍调', 'caller 类在 changed 名单但 invoke 仍在') if ckey in changed else ('活-unchanged', '')
-    return ('已杀·断', 'caller 类 changed 且 invoke 消失' if ckey in changed else '断?(caller 不在 changed 却 invoke 消失——疑正则口径误捕,复核)')
+    # invoke 消失：changed 类=确认可疑杀断；不在 changed 却消失=与类级 diff 矛盾，标存疑不冒充"已杀"
+    if ckey in changed:
+        return ('已杀·断', 'caller 类 changed 且 invoke 消失')
+    return ('断?', 'caller 不在 KUWO-1 changed 清单却 invoke 消失——与类级 diff 矛盾，疑正则误捕或跨dex重复类漏判，须复核')
 
 # ---------- 表① 广告业务入口 ----------
 ad_seen = scan_callers(BASE, AD_PATTERNS)
