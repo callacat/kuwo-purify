@@ -203,97 +203,97 @@
 
 | caller 类 | dex | 所在方法 | 示例调用 | 风险自注 |
 |---|---|---|---|---|
-| `b3/a.smali` | classes | `public b()V` | `Lcom/tme/rif/config/ConfigManager;->init` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/mod/mobilead/n.smali` | classes8 | `public F(Landroid/view/ViewGroup;Landroid/view/View;Lcn/kuwo` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/tmead/TMESplashOneshotExt.smali` | classes8 | `public static final x(Lcom/tencentmusic/ad/integration/opera` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashSource` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/mod/mobilead/tmead/c.smali` | classes8 | `public static h()V` | `Lcom/tencentmusic/ad/TMEAds;->init` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/mod/mobilead/tmead/u$a.smali` | classes8 | `public onADDismissed()V` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashType` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/mod/mobilead/tmead/u.smali` | classes8 | `public Wa(Landroid/app/Activity;Ljava/lang/String;ILqc/b$b;)` | `Lcom/tencentmusic/ad/TMEAds;->isInitialized` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/z.smali` | classes8 | `public constructor <init>()V` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->getThreshold` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/player/activities/EntryActivity$d.smali` | classes9 | `public a(IZ)V` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/ui/search/i.smali` | classes10 | `public static a(Ljava/lang/String;)Z` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/ui/settings/FeedBackSetInfoFragment.smali` | classes10 | `public onClick(Landroid/view/View;)V` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/ui/settings/SettingSubFragment$g.smali` | classes10 | `public a(Lgl/z;ZI)V` | `Lcom/tencentmusic/ad/TMEAds;->setInteractiveAdPrivacyConfig` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `cn/kuwo/ui/settings/SettingSubViewModel$getTMEAdsInteractiveAbilityEnabled$2.smali` | classes10 | `public final invokeSuspend(Ljava/lang/Object;)Ljava/lang/Obj` | `Lcom/tencentmusic/ad/TMEAds;->getInteractiveAdPrivacyConfig` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/kugou/fanxing/modul/ad/view/AdBannerView$a.smali` | classes15 | `public final onClick(Landroid/view/View;)V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->setAdVisibible` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/kugou/fanxing/modul/ad/view/AdBannerView$c.smali` | classes15 | `public onADStatusChanged()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/kugou/fanxing/modul/ad/view/AdBannerView.smali` | classes15 | `public final setAdVisibible(Z)V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->c` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/kugou/fanxing/modul/shortplay/delegate/e$c.smali` | classes2 | `public final run()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->setAdVisibible` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/kugou/fanxing/modul/shortplay/delegate/e.smali` | classes2 | `public onDestroy()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->c` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/managers/plugin/a.smali` | classes3 | `public final a()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/plugin/tangramsplash/a/a.smali` | classes3 | `public static a(Ljava/lang/String;)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->setAdInfo` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/plugin/tangramsplash/a/b$1.smali` | classes3 | `public run()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/plugin/tangramsplash/a/b$3.smali` | classes3 | `public run()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicView;->recycleMosaicEngine` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/plugin/tangramsplash/a/b.smali` | classes3 | `private ab()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicView;->getEngine` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/comm/plugin/tangramsplash/d/d.smali` | classes3 | `private h(Ljava/lang/String;Z)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/tg/splash/TGSplashAD$ADListenerAdapter.smali` | classes3 | `public onADEvent(Lcom/qq/e/comm/adevent/ADEvent;)V` | `Lcom/qq/e/tg/splash/TGSplashAdListener;->onADClicked` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/qq/e/tg/splash/TGSplashAD.smali` | classes3 | `private static a(Lcom/qq/e/tg/splash/TGSplashAdListener;I)V` | `Lcom/qq/e/tg/splash/TGSplashAdListener;->onNoAD` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$1.smali` | classes3 | `public onEngineInitializeError(I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$InitCallback;->onInitFailed` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$2.smali` | classes3 | `public onEngineInitializeError(I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportEngineInitFailed` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager.smali` | classes3 | `public preWarmMosaicEngine(Landroid/content/Context;Lcom/ten` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->getAppName` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicReporter.smali` | classes3 | `public static reportEngineInitFailed(IJ)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$3.smali` | classes3 | `public onViewCreate(Landroid/view/View;I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportViewCreateFailed` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$6.smali` | classes3 | `public invoke(Lcom/tencent/ams/dsdk/core/DKEngine;Ljava/lang` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportSplashClicked` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$7.smali` | classes3 | `public invoke(Lcom/tencent/ams/dsdk/core/DKEngine;Ljava/lang` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportViewRenderFinish` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView.smali` | classes3 | `private createDynamicViewFromMosaicEngine(Lcom/tencent/ams/d` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->getAdInfo` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/service/dynamic/impl/DynamicServiceImpl$1.smali` | classes3 | `public onEngineInitialized()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `com/tencent/ams/fusion/service/dynamic/impl/DynamicServiceImpl.smali` | classes3 | `public getEngine(Ljava/lang/String;J)Lcom/tencent/ams/dsdk/c` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `fo1/a.smali` | classes5 | `public final jumpToCustomLandingPage(Landroid/content/Contex` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->e` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `fo1/b.smali` | classes5 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->f` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `fo1/c.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->g` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `fo1/d.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->h` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `fo1/e.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->d` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `go1/a.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/nativead/AMSNativeAdAdapter$a;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ho1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->b` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ho1/b.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->c` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ho1/c.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `io1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/nativead/MADNativeAdAdapter;->d` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `io1/b.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/nativead/MADNativeAdAdapter;->e` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/a.smali` | classes6 | `public final handleMessage(Landroid/os/Message;)Z` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->k` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/b.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->j` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->i` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/d.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->e` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/e.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->f` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/f.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->g` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/g.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->d` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/h.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->h` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/i.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/j.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/k.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->b` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `jo1/l.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/a.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->d` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/b.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->f` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->e` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/d.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/e.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->b` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/f.smali` | classes6 | `public final invoke(Ljava/lang/Object;)Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/g.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->c` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/h.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADExpoSplashAdapter;->h` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `ko1/i.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADExpoSplashAdapter;->g` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperBaseSplashAdapter;->d` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/b.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->s` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->u` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/d.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->e` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/e.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->f` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/f.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->t` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/g.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->i` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/h.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->k` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/i.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->o` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/j.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->r` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/k.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->h` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/l.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->l` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/m.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->j` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/n.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->g` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/o.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->p` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/p.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->n` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/q.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->q` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/r.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->m` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `lo1/s.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter$b;->a` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `qd/e.smali` | classes9 | `public static f()I` | `Lcom/tencentmusic/ad/TMEAds;->checkSplashInterval` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `ra/e.smali` | classes8 | `protected d(Ljava/lang/String;Ljava/lang/String;Lorg/xml/sax` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->setThreshold` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | `Lcom/tme/fireeye/lib/base/FireEye;->init` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `z6/a.smali` | classes8 | `b()V` | `Lcom/tencentmusic/ad/TMEAds;->getPosConfig` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
-| `z6/b.smali` | classes8 | `private static f(Ljava/util/List;)Ljava/lang/String;` | `Lcom/tencentmusic/ad/TMEAds;->getVersionName` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
+| `b3/a.smali` | classes | `public b()V` | `Lcom/tme/rif/config/ConfigManager;->init` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/n.smali` | classes8 | `public F(Landroid/view/ViewGroup;Landroid/view/View;Lcn/kuwo` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 混挂破解链特征[peculiar(会员提示)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `cn/kuwo/mod/mobilead/tmead/TMESplashOneshotExt.smali` | classes8 | `public static final x(Lcom/tencentmusic/ad/integration/opera` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashSource` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/tmead/c.smali` | classes8 | `public static h()V` | `Lcom/tencentmusic/ad/TMEAds;->init` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/tmead/u$a.smali` | classes8 | `public onADDismissed()V` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashType` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/tmead/u.smali` | classes8 | `public Wa(Landroid/app/Activity;Ljava/lang/String;ILqc/b$b;)` | `Lcom/tencentmusic/ad/TMEAds;->isInitialized` | 混挂破解链特征[peculiar(会员提示)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `cn/kuwo/mod/mobilead/z.smali` | classes8 | `public constructor <init>()V` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->getThreshold` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/player/activities/EntryActivity$d.smali` | classes9 | `public a(IZ)V` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/ui/search/i.smali` | classes10 | `public static a(Ljava/lang/String;)Z` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂破解链特征[s2(native字符串)+peculiar(会员提示)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `cn/kuwo/ui/settings/FeedBackSetInfoFragment.smali` | classes10 | `public onClick(Landroid/view/View;)V` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂破解链特征[s2(native字符串)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `cn/kuwo/ui/settings/SettingSubFragment$g.smali` | classes10 | `public a(Lgl/z;ZI)V` | `Lcom/tencentmusic/ad/TMEAds;->setInteractiveAdPrivacyConfig` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `cn/kuwo/ui/settings/SettingSubViewModel$getTMEAdsInteractiveAbilityEnabled$2.smali` | classes10 | `public final invokeSuspend(Ljava/lang/Object;)Ljava/lang/Obj` | `Lcom/tencentmusic/ad/TMEAds;->getInteractiveAdPrivacyConfig` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/kugou/fanxing/modul/ad/view/AdBannerView$a.smali` | classes15 | `public final onClick(Landroid/view/View;)V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->setAdVisibible` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/kugou/fanxing/modul/ad/view/AdBannerView$c.smali` | classes15 | `public onADStatusChanged()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/kugou/fanxing/modul/ad/view/AdBannerView.smali` | classes15 | `public final setAdVisibible(Z)V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->c` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/kugou/fanxing/modul/shortplay/delegate/e$c.smali` | classes2 | `public final run()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->setAdVisibible` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/kugou/fanxing/modul/shortplay/delegate/e.smali` | classes2 | `public onDestroy()V` | `Lcom/kugou/fanxing/modul/ad/view/AdBannerView;->c` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/managers/plugin/a.smali` | classes3 | `public final a()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/plugin/tangramsplash/a/a.smali` | classes3 | `public static a(Ljava/lang/String;)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->setAdInfo` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/plugin/tangramsplash/a/b$1.smali` | classes3 | `public run()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/plugin/tangramsplash/a/b$3.smali` | classes3 | `public run()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicView;->recycleMosaicEngine` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/plugin/tangramsplash/a/b.smali` | classes3 | `private ab()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicView;->getEngine` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/comm/plugin/tangramsplash/d/d.smali` | classes3 | `private h(Ljava/lang/String;Z)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/tg/splash/TGSplashAD$ADListenerAdapter.smali` | classes3 | `public onADEvent(Lcom/qq/e/comm/adevent/ADEvent;)V` | `Lcom/qq/e/tg/splash/TGSplashAdListener;->onADClicked` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/qq/e/tg/splash/TGSplashAD.smali` | classes3 | `private static a(Lcom/qq/e/tg/splash/TGSplashAdListener;I)V` | `Lcom/qq/e/tg/splash/TGSplashAdListener;->onNoAD` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$1.smali` | classes3 | `public onEngineInitializeError(I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$InitCallback;->onInitFailed` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager$2.smali` | classes3 | `public onEngineInitializeError(I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportEngineInitFailed` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager.smali` | classes3 | `public preWarmMosaicEngine(Landroid/content/Context;Lcom/ten` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->getAppName` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicReporter.smali` | classes3 | `public static reportEngineInitFailed(IJ)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$3.smali` | classes3 | `public onViewCreate(Landroid/view/View;I)V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportViewCreateFailed` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$6.smali` | classes3 | `public invoke(Lcom/tencent/ams/dsdk/core/DKEngine;Ljava/lang` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportSplashClicked` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView$7.smali` | classes3 | `public invoke(Lcom/tencent/ams/dsdk/core/DKEngine;Ljava/lang` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicReporter;->reportViewRenderFinish` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/dynamic/SplashAdDynamicView.smali` | classes3 | `private createDynamicViewFromMosaicEngine(Lcom/tencent/ams/d` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicConfig;->getAdInfo` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/service/dynamic/impl/DynamicServiceImpl$1.smali` | classes3 | `public onEngineInitialized()V` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `com/tencent/ams/fusion/service/dynamic/impl/DynamicServiceImpl.smali` | classes3 | `public getEngine(Ljava/lang/String;J)Lcom/tencent/ams/dsdk/c` | `Lcom/tencent/ams/fusion/dynamic/SplashAdDynamicEngineManager;->getInstance` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `fo1/a.smali` | classes5 | `public final jumpToCustomLandingPage(Landroid/content/Contex` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->e` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `fo1/b.smali` | classes5 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->f` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `fo1/c.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->g` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `fo1/d.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->h` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `fo1/e.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/AMSSplashAdapter;->d` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `go1/a.smali` | classes5 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/ams/nativead/AMSNativeAdAdapter$a;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ho1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->b` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ho1/b.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->c` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ho1/c.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/common/BaseAdAdapter;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `io1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/nativead/MADNativeAdAdapter;->d` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `io1/b.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/nativead/MADNativeAdAdapter;->e` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/a.smali` | classes6 | `public final handleMessage(Landroid/os/Message;)Z` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->k` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/b.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->j` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->i` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/d.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->e` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/e.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->f` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/f.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->g` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/g.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->d` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/h.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter;->h` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/i.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/j.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/k.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->b` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `jo1/l.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/reward/MADRewardVideoAdAdapter$b;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/a.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->d` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/b.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->f` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter;->e` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/d.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/e.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->b` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/f.smali` | classes6 | `public final invoke(Ljava/lang/Object;)Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/g.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADBaseSplashAdapter$c;->c` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/h.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADExpoSplashAdapter;->h` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `ko1/i.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/mad/splash/MADExpoSplashAdapter;->g` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/a.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperBaseSplashAdapter;->d` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/b.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->s` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/c.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->u` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/d.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->e` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/e.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->f` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/f.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->t` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/g.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->i` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/h.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->k` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/i.smali` | classes6 | `public final run()V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->o` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/j.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->r` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/k.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->h` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/l.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->l` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/m.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->j` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/n.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->g` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/o.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->p` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/p.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->n` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/q.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->q` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/r.smali` | classes6 | `public final invoke()Ljava/lang/Object;` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter;->m` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `lo1/s.smali` | classes6 | `public final onReceiveValue(Ljava/lang/Object;)V` | `Lcom/tencentmusic/ad/adapter/madams/splash/OperExpertSplashAdapter$b;->a` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `qd/e.smali` | classes9 | `public static f()I` | `Lcom/tencentmusic/ad/TMEAds;->checkSplashInterval` | 混挂破解链特征[peculiar(会员提示)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `ra/e.smali` | classes8 | `protected d(Ljava/lang/String;Ljava/lang/String;Lorg/xml/sax` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->setThreshold` | 混挂破解链特征[vipnew(VIPbean)+peculiar(会员提示)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
+| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | `Lcom/tme/fireeye/lib/base/FireEye;->init` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `z6/a.smali` | classes8 | `b()V` | `Lcom/tencentmusic/ad/TMEAds;->getPosConfig` | 独立业务 caller(未见破解链引用)——波及面最小 |
+| `z6/b.smali` | classes8 | `private static f(Ljava/util/List;)Ljava/lang/String;` | `Lcom/tencentmusic/ad/TMEAds;->getVersionName` | 混挂破解链特征[s2(native字符串)]——掐该 caller 前先审这些依赖，防 P3 式崩会员 |
 
 > 真机基线（老马 PJD110：外联仅腾讯系 443 正常业务面）：存活表=Java 静态口径，最终掐点组合等老马点位表 + 真机复验。
 
