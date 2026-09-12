@@ -191,9 +191,9 @@
 |---|---|---|---|---|---|---|
 | `b3/a.smali` | classes | `public b()V` | 370 | `Lcom/tme/rif/config/ConfigManager` | init | **活-unchanged** |
 | `b3/a.smali` | classes | `public b()V` | 375 | `Lcom/tme/rif/service/ServiceManager` | init | **活-unchanged** |
-| `sd/d$c.smali` | classes9 | `public attachBusinessInfo()Ljava/util/Map;` | 51 | `Lcom/tme/fireeye/memory/common/MemoryEventAdapter` | attach | **已杀·断** |
-| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 590 | `Lcom/tme/fireeye/crash/export/anr/ANRReport` | start | **已杀·断** |
-| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 544 | `Lcom/tme/fireeye/crash/export/eup/CrashReport` | init | **已杀·断** |
+| `sd/d$c.smali` | classes9 | `public attachBusinessInfo()Ljava/util/Map;` | 51 | `Lcom/tme/fireeye/memory/common/MemoryEventAdapter` | attach | **断?** |
+| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 590 | `Lcom/tme/fireeye/crash/export/anr/ANRReport` | start | **断?** |
+| `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 544 | `Lcom/tme/fireeye/crash/export/eup/CrashReport` | init | **断?** |
 | `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 635 | `Lcom/tme/fireeye/lib/base/FireEye` | init | **活-unchanged** |
 | `sd/d.smali` | classes9 | `public b(Landroid/content/Context;Ljava/lang/String;)V` | 642 | `Lcom/tme/fireeye/lib/base/FireEye` | start | **活-unchanged** |
 
