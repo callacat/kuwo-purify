@@ -1,5 +1,11 @@
+# 版权物/大产物不入库（红线：样本 APK 与反编译全文只走 Release）
 *.apk
+*.apk.in
 *.tar.gz
 __pycache__/
+work/
+smali-*/
+*.dex
 *.jks
 *.keystore
+local.properties
