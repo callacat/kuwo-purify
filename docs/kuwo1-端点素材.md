@@ -115,3 +115,9 @@
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 ```
 
+
+## 7. ktvdaren 在官方基线侧命中（2 处）——判定 mod 注入与否的关键对照
+
+> mod 命中 2 处、官方基线命中 2 处，且差集 new_urls=0 → **该域名非 mod 注入，系酷我官方自带**（差集为空即最硬证据）。
+- `classes8/nb/i.smali` L305: `const-string v2, "http://api.ktvdaren.com/hot?appid="`
+- `classes8/nb/i.smali` L350: `const-string v1, "http://api.ktvdaren.com/search?appid="`
