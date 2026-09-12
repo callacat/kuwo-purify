@@ -92,6 +92,7 @@ for key in sorted(mod_keys & base_keys):
     if a or r or c:
         changed_cls.append(key)
         total_a += len(a); total_r += len(r); total_c += len(c)
+        method_stats.append((key, len(a), len(r), len(c)))
         dst = os.path.join(BAK, 'changed', key)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         with open(dst, 'w', encoding='utf-8') as out:

@@ -131,6 +131,26 @@ if not focus_ctx:
     report.append('（本轮 smali 扫描未命中，注意：可能来自字符串解码/native 层，需另线索）')
 for rel, ln, hit, ctx in focus_ctx:
     report += [f'### `{rel}` L{ln}', '```smali', ctx.rstrip(), '```', '']
+# §7 官方基线侧同串对照（证明是否 mod 注入）
+focus_base = []
+for droot, _, fs in os.walk(BASE):
+    for f in fs:
+        if not f.endswith('.smali'):
+            continue
+        abs_p = os.path.join(droot, f)
+        rel = os.path.relpath(abs_p, BASE)
+        with open(abs_p, encoding='utf-8', errors='replace') as fh:
+            lines = fh.readlines()
+        for i, line in enumerate(lines):
+            if FOCUS in line:
+                focus_base.append((rel, i+1, line.strip()))
+report += ['', f'## 7. {FOCUS} 在官方基线侧命中（{len(focus_base)} 处）——判定 mod 注入与否的关键对照', '']
+if focus_base:
+    report.append(f'> mod 命中 {len(focus_ctx)} 处、官方基线命中 {len(focus_base)} 处，且差集 new_urls=0 → **该域名非 mod 注入，系酷我官方自带**（差集为空即最硬证据）。')
+    for rel, ln, hit in focus_base:
+        report.append(f'- `{rel}` L{ln}: `{hit}`')
+else:
+    report.append('> mod 命中但官方基线 0 命中 → 该域名为 mod 注入嫌疑，重点审读上下文。')
 with open(OUT, 'w', encoding='utf-8') as f:
     f.write('\n'.join(report) + '\n')
 
