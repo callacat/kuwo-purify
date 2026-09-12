@@ -60,9 +60,14 @@ def walk_collect(root):
 mod_urls, mod_doms = walk_collect(MOD)
 base_urls, base_dom_set = walk_collect(BASE)
 
-new_urls = {u for u in set(mod_urls) - set(base_urls)}
-new_doms = {d for d in set(mod_doms) - set(base_dom_set)}
-gone_urls = sorted(set(base_urls) - set(mod_urls))
+# 注意：walk_collect 返回的是 class->集合 的 dict，集合差必须展平到值并集上做
+mod_url_all = set().union(*mod_urls.values()) if mod_urls else set()
+base_url_all = set().union(*base_urls.values()) if base_urls else set()
+mod_dom_all = set().union(*mod_doms.values()) if mod_doms else set()
+base_dom_all = set().union(*base_dom_set.values()) if base_dom_set else set()
+new_urls = mod_url_all - base_url_all
+new_doms = mod_dom_all - base_dom_all
+gone_urls = sorted(base_url_all - mod_url_all)
 
 # 差集 URL 的引用类（url_by_class 是 class->urls，反转为 url->classes）
 url2cls = defaultdict(set)

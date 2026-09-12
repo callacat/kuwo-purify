@@ -39,11 +39,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # 基线登记前置校验：占位符存在即 fail-fast（asset 未上传前属预期）
+          grep -q 'OFFICIAL-SHA256-PENDING' docs/baseline-official.md && { echo "FATAL: 官方基线 sha256 未登记 docs/baseline-official.md"; exit 1; }
           mkdir -p work && cd work
           gh release download samples -R "$GITHUB_REPOSITORY" -p 'kuwo-12.2.2.0-tiantian-mod.apk' -p 'kuwo-12.2.2.0-official.apk' -D .
           echo "f2f20005e7234025383a517053703a922173fd05dbc7d6a48d09c62fe9b8732b  kuwo-12.2.2.0-tiantian-mod.apk" | sha256sum -c -
-          # 官方基线 sha256 由基线获取步骤登记后回填本行（占位符存在即失败，防错包）
-          grep -q 'OFFICIAL-SHA256-PENDING' ../docs/baseline-official.md && { echo "FATAL: 官方基线 sha256 未登记"; exit 1; } || true
           OFFICIAL_SHA=$(grep -oE '^[0-9a-f]{64}' ../docs/baseline-official.md | head -1)
           echo "$OFFICIAL_SHA  kuwo-12.2.2.0-official.apk" | sha256sum -c -
           df -h .
