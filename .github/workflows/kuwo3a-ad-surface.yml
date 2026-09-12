@@ -1,0 +1,63 @@
+name: kuwo3a-ad-surface
+
+# KUWO-3a：广告/埋点残留面素材清单（rid recvv1L7iC5va5 · 保 VIP 净化前置素材）
+# 输入=KUWO-1 产物（kuwo1-artifacts），不回扫 base 全量 dex（表驱动禁暴力扫），故本 CI 极轻：
+#   下载 kuwo1-diff-baksmali.tar.gz(3.4MB)+kuwo1-endpoints.md → 解包 → kuwo3a_adsurface.py → 回写+发 asset。
+# 三表：①广告SDK面(com/tencentmusic/ad 现状) ②埋点上报面(47 base-only URL 归属+统计类现状) ③s2 native化配对定性。
+# 分类判定权在老马：脚本只出现状事实，不写删点建议。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  adsurface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: 拉 KUWO-1 素材输入 + sha256 校验
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work && cd work
+          gh release download kuwo1-artifacts -R "$GITHUB_REPOSITORY" \
+            -p 'kuwo1-diff-baksmali.tar.gz' -p 'kuwo1-endpoints.md' -D .
+          # KUWO-1 归档权威 sha256（本机 2026-09-13 实测，重传须同步更新本行——防错 asset 静默污染）
+          echo "6832017722aec0817553eb500210cb52956cfcd54dc5cdbe35baa77a918883f8  kuwo1-diff-baksmali.tar.gz" | sha256sum -c -
+          tar xzf kuwo1-diff-baksmali.tar.gz
+          echo "changed 类数: $(find kuwo1-diff-baksmali/changed -name '*.smali' | wc -l) ｜ added 类数: $(find kuwo1-diff-baksmali/added -name '*.smali' | wc -l)"
+
+      - name: 三表分析（无全树扫，仅 tar+endpoints）
+        run: |
+          cd work
+          python3 ../scripts/kuwo3a_adsurface.py "$PWD" | tee adsurface-run.log
+          du -h diff-out/docs/kuwo3-ad-surface.md kuwo3-s2-pairs.txt kuwo3-ep-locate.txt
+
+      - name: 回写报告到仓库 docs/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          cp work/diff-out/docs/kuwo3-ad-surface.md docs/kuwo3-ad-surface.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/kuwo3-ad-surface.md
+          git commit -m "docs(KUWO-3a): 广告/埋点残留面三表素材清单（表①202类/表②埋点归属+s2副产物发现/表③672配对定性）" || echo "无变更"
+          git pull --rebase origin main && git push origin main
+
+      - name: 上传配对/定位明细到 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          gh release create kuwo3a-artifacts --title "KUWO-3a 广告/埋点素材附件" --notes "s2 672 对签名配对清单 + 47 URL×类×区段定位明细。不进 git。判定素材，分类权在老马。" 2>/dev/null || true
+          gh release upload kuwo3a-artifacts work/kuwo3-s2-pairs.txt work/kuwo3-ep-locate.txt work/diff-out/docs/kuwo3-ad-surface.md --clobber
+
+      - name: 清理
+        if: always()
+        run: rm -rf work
