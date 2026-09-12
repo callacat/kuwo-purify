@@ -205,11 +205,11 @@
 |---|---|---|---|---|
 | `b3/a.smali` | classes | `public b()V` | `Lcom/tme/rif/config/ConfigManager;->init` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
 | `cn/kuwo/mod/mobilead/n.smali` | classes8 | `public F(Landroid/view/ViewGroup;Landroid/view/View;Lcn/kuwo` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/tmead/TMESplashOneshotExt.smali` | classes8 | `public static final x(Lcom/tencentmusic/ad/integration/opera` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashSource` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/tmead/c.smali` | classes8 | `public static h()V` | `Lcom/tencentmusic/ad/TMEAds;->init` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/tmead/u$a.smali` | classes8 | `public onADDismissed()V` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashType` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
+| `cn/kuwo/mod/mobilead/tmead/TMESplashOneshotExt.smali` | classes8 | `public static final x(Lcom/tencentmusic/ad/integration/opera` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashSource` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/tmead/c.smali` | classes8 | `public static h()V` | `Lcom/tencentmusic/ad/TMEAds;->init` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
+| `cn/kuwo/mod/mobilead/tmead/u$a.smali` | classes8 | `public onADDismissed()V` | `Lcom/tencentmusic/ad/integration/operationsplash/operationSplash/TMEOperSplashAdAsset;->getSplashType` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
 | `cn/kuwo/mod/mobilead/tmead/u.smali` | classes8 | `public Wa(Landroid/app/Activity;Ljava/lang/String;ILqc/b$b;)` | `Lcom/tencentmusic/ad/TMEAds;->isInitialized` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
-| `cn/kuwo/mod/mobilead/z.smali` | classes8 | `public constructor <init>()V` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->getThreshold` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
+| `cn/kuwo/mod/mobilead/z.smali` | classes8 | `public constructor <init>()V` | `Lcn/kuwo/base/bean/shieldadinfo/SplashAdShakeShieldInfo;->getThreshold` | 独立业务 caller(未见 VIP 链引用)——波及面最小 |
 | `cn/kuwo/player/activities/EntryActivity$d.smali` | classes9 | `public a(IZ)V` | `Lcom/tencentmusic/ad/TMEAds;->updateLastShowSplashTimeForClient` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
 | `cn/kuwo/ui/search/i.smali` | classes10 | `public static a(Ljava/lang/String;)Z` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
 | `cn/kuwo/ui/settings/FeedBackSetInfoFragment.smali` | classes10 | `public onClick(Landroid/view/View;)V` | `Lcom/tencentmusic/ad/TMEAds;->forceUpdatePosConfig` | 混挂VIP特征——掐该caller先审 VIP 依赖链，防 P3 式崩会员 |
