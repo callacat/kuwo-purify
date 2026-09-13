@@ -1,0 +1,28 @@
+=== P2 public b()V L370: invoke-virtual {v0}, Lcom/tme/rif/config/ConfigManager;->init()V smali/b3/a.smali ===
+[BEFORE]
+    sget-object v0, Lcom/tme/rif/config/ConfigManager;->INSTANCE:Lcom/tme/rif/config/ConfigManager;    invoke-virtual {v0}, Lcom/tme/rif/config/ConfigManager;->init()V    .line 8
+
+=== P2 public b()V L375: invoke-virtual {v0}, Lcom/tme/rif/service/ServiceManager;->init()V smali/b3/a.smali ===
+[BEFORE]
+    sget-object v0, Lcom/tme/rif/service/ServiceManager;->INSTANCE:Lcom/tme/rif/service/ServiceManager;    invoke-virtual {v0}, Lcom/tme/rif/service/ServiceManager;->init()V    .line 9
+
+=== P3 public b(Landroid/content/Context;Ljava/ L635: invoke-static {p1}, Lcom/tme/fireeye/lib/base/FireEye;->init(Lcom/tme/fireeye/li smali_classes9/sd/d.smali ===
+[BEFORE]
+    move-result-object p1    invoke-static {p1}, Lcom/tme/fireeye/lib/base/FireEye;->init(Lcom/tme/fireeye/lib/base/FireEye;)Lcom/tme/fireeye/lib/base/FireEye;    .line 39
+
+=== P3 public b(Landroid/content/Context;Ljava/ L642: invoke-virtual {p1}, Lcom/tme/fireeye/lib/base/FireEye;->start()V smali_classes9/sd/d.smali ===
+[BEFORE]
+    move-result-object p1    invoke-virtual {p1}, Lcom/tme/fireeye/lib/base/FireEye;->start()V    return-void
+
+=== B2 a(Lq1/a;)V init smali/q1/b.smali ===
+[BEFORE]
+    .line 1    invoke-interface {p0}, Lq1/a;->init()V    .line 2
+[AFTER]
+    .line 1    nop    nop    # R2B-B2 invoke-interface(2 units)→2×nop 等宽替换
+
+=== B1 F(String,Z) 体首值过滤 smali/cn/kuwo/base/uilib/m.smali ===
+[BEFORE]
+.method public static F(Ljava/lang/String;Z)V    .locals 6    .line 1
+[AFTER]
+.method public static F(Ljava/lang/String;Z)V    .locals 6    const-string v0, "QQ频道"    invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
