@@ -137,9 +137,11 @@ jobs:
           echo "== P1 桩生效: h()V 首指令 return-void =="
           awk '/\.method public static h\(\)V/,/\.end method/' chk12/cn/kuwo/mod/mobilead/tmead/c.smali | head -5
           echo "== P2 桩生效: ConfigManager/ServiceManager init 已 nop =="
-          awk '/\.method public b\(\)V/,/\.end method/' chk12/b3/a.smali | grep -E 'nop|init' | head -8
+          # b3/a 可能在 p12 或另一 dex（本机核验:实际在 classes.dex），按 dex 循环找
+          find chk12 chk3 -path '*b3/a.smali' | head -2
+          for f in $(find chk12 chk3 -path '*b3/a.smali'); do awk '/\.method public b\(\)V/,/\.end method/' "$f" | grep -E 'nop|rif' | head -8; done
           echo "== P3 桩生效: FireEye init/start 已 nop =="
-          awk '/public b\(Landroid\/content\/Context;Ljava\/lang\/String;\)V/,/\.end method/' chk3/sd/d.smali | grep -E 'nop|init|start' | head -8
+          for f in $(find chk12 chk3 -path '*sd/d.smali'); do awk '/public b\(Landroid\/content\/Context;Ljava\/lang\/String;\)V/,/\.end method/' "$f" | grep -E 'nop|FireEye;->(init|start)' | head -8; done
 
       - name: 计算 round + 发 Release + 回写报告
         env:
