@@ -79,12 +79,12 @@ jobs:
           echo "== P1: c.smali h()V 体首 return-void =="
           grep -A2 '.method public static h()V' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali | head -4
           echo "== P2/P3: 残活 invoke 应为 0（同方法签名内，排除 patch 注释行）=="
-          R=$(grep -A30 '.method public b()V' mod_src/smali*/b3/a.smali | grep -v '^[[:space:]]*#' | grep -c 'Lcom/tme/rif/\(config/ConfigManager\|service/ServiceManager\);->init')
+          R=$(grep -A30 '.method public b()V' mod_src/smali*/b3/a.smali | grep -v '^[[:space:]]*#' | { grep -c 'Lcom/tme/rif/\(config/ConfigManager\|service/ServiceManager\);->init' || true; })
           echo "b3/a ConfigManager|ServiceManager init 残活=$R（须 0）"; [ "$R" = "0" ] || { grep -A30 '.method public b()V' mod_src/smali*/b3/a.smali | grep 'Lcom/tme/rif/\(config/ConfigManager\|service/ServiceManager\);->init'; exit 1; }
-          R2=$(grep -A40 'public b(Landroid/content/Context;Ljava/lang/String;)V' mod_src/smali*/sd/d.smali | grep -v '^[[:space:]]*#' | grep -c 'Lcom/tme/fireeye/lib/base/FireEye;->\(init\|start\)')
+          R2=$(grep -A40 'public b(Landroid/content/Context;Ljava/lang/String;)V' mod_src/smali*/sd/d.smali | grep -v '^[[:space:]]*#' | { grep -c 'Lcom/tme/fireeye/lib/base/FireEye;->\(init\|start\)' || true; })
           echo "sd/d FireEye init|start 残活=$R2（须 0）"; [ "$R2" = "0" ] || { grep -A40 'public b(Landroid/content/Context;Ljava/lang/String;)V' mod_src/smali*/sd/d.smali | grep 'Lcom/tme/fireeye/lib/base/FireEye;->\(init\|start\)'; exit 1; }
           echo "== 范围门: j()Z 与 Other init 未动 =="
-          grep -c '.method public static j()Z' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali
+          grep -c '.method public static j()Z' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali || true
           grep -A30 '.method public b()V' mod_src/smali*/b3/a.smali | grep -c 'HG2\|OtherManager' || true
 
       - name: apktool b 重建（dex 240MB 重汇编预计 15-25min）
