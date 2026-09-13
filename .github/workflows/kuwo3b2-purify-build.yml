@@ -143,7 +143,8 @@ jobs:
           json.dump(opens, open('pile-dex-map.json', 'w'))
           print(opens)
           EOF
-          cd work && for N in $(python3 -c "import json;print(' '.join(sorted(set(v[0] for v in json.load(open('pile-dex-map.json')).values()))))"); do
+          # pile-dex-map.json 在 work 内，此时 cwd 已是 work；JSON 路径相对化（round4 实锤 cd work 重复报错）
+          for N in $(python3 -c "import json;print(' '.join(sorted(set(v[0] for v in json.load(open('pile-dex-map.json')).values()))))"); do
             java -Xmx4g -jar /usr/local/bin/baksmali.jar d "$N" -o "chk-${N%.dex}"
           done
           echo "== 五桩验证（find 循环定位，防路径写死）=="
