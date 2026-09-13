@@ -40,35 +40,25 @@ p1 = find_file('cn/kuwo/mod/mobilead/tmead/c.smali')
 if not p1:
     print('KUWO3B2-PATCH FATAL P1: c.smali 未找到'); sys.exit(1)
 lines = open(p1, encoding='utf-8').read().split('\n')
-out, in_h = [], False
-inserted = False
-for i, ln in enumerate(lines):
-    m = re.match(r'^\.method\s+public static h\(\)V\s*$', ln)
-    if m:
+# round5：P1 撤销（老马 r4 实测副作用：h()V return-void 殃及同包 BirthScreenHelper 初始化 → u$l.run NPE 崩死 → App 起不来）。
+# B2 已掐 config 唯一喂入口（q1.b.a init nop），bubble 链已断；P1 是保险冗余，撤销后 h()V 保持原样。
+# 撤销方式=不插入 return-void，仅验证 h()V 存在且无历史桩残留（防 round4 工作树污染），fail-fast。
+in_h, found, stub = False, False, False
+for ln in lines:
+    if re.match(r'^\.method\s+public static h\(\)V\s*$', ln):
+        found = True
         in_h = True
-        out.append(ln)
         continue
-    if in_h and not inserted:
-        if ln.strip() == '.end method':
-            print('KUWO3B2-PATCH FATAL P1: h()V 体为空(无寄存器声明段)'); sys.exit(1)
-        if re.match(r'^\s*\.registers\s+\d+', ln) or re.match(r'^\s*\.locals\s+\d+', ln):
-            out.append(ln)
-            out.append('    return-void')
-            out.append('    # KUWO3B2-P1 return-void inserted (老马点位表#1: 掐 TMEAds init 枢纽; 后续不可达不删)')
-            record('P1', p1, lines, i, out, label='h()V')
-            inserted = True
-            in_h = False
-            continue
-        out.append(ln)
-        continue
-    if in_h and ln.strip() == '.end method':
+    if ln.strip() == '.end method':
         in_h = False
-    out.append(ln)
-if not inserted:
-    print('KUWO3B2-PATCH FATAL P1: h()V 未锚定(签名漂移?)'); sys.exit(1)
+    if in_h and 'KUWO3B2-P1 return-void inserted' in ln:
+        stub = True
+if not found:
+    print('KUWO3B2-PATCH FATAL P1(撤销模式): c.smali h()V 未找到(签名漂移?)'); sys.exit(1)
+if stub:
+    print('KUWO3B2-PATCH FATAL P1(撤销模式): h()V 内有 round4 历史桩残留——工作树非干净解包,重跑 apktool d'); sys.exit(1)
 hits['P1'] = 1
-open(p1, 'w', encoding='utf-8').write('\n'.join(out))
-print('P1 done: c.smali h()V 体首 return-void')
+print('P1 done(撤销模式): h()V 保持原样，无 return-void 桩（round5，r4 副作用修复）')
 
 # ---------- P2/P3：invoke → 等宽 nop ----------
 def patch_invokes(path, method_sig, callee_regexes, tag):

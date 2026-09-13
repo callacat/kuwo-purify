@@ -67,20 +67,21 @@ jobs:
           java -Xmx6g -jar /usr/local/bin/apktool.jar d -f -r -o mod_src kuwo-12.2.2.0-tiantian-mod.apk
           echo "smali 树: $(find mod_src -name '*.smali' | wc -l) 文件 ｜ dex 目录: $(ls -d mod_src/smali* | wc -l)"
 
-      - name: 五处 patch（3b2 三桩 + R2b 双桥，宁失败不静默）
+      - name: 四处 patch（round5：3b2 P2/P3 + R2b 双桥；P1 已撤销=老马 r4 实测副作用，宁失败不静默）
         run: |
           cd work
           python3 ../scripts/kuwo3b2_patch.py mod_src patch-evidence.txt | tee patch-kuwo3b2.log
-          grep -q 'KUWO3B2-PATCH DONE P1=1 P2=2 P3=2' patch-kuwo3b2.log || { echo '!! 3b2 三桩计数不达预期'; exit 1; }
+          grep -q 'KUWO3B2-PATCH DONE P1=1 P2=2 P3=2' patch-kuwo3b2.log || { echo '!! 3b2 计数不达预期（P1=撤销模式验证）'; exit 1; }
           python3 ../scripts/kuwo_r2b_patch.py mod_src patch-evidence-r2b.txt | tee patch-kuwo-r2b.log
           grep -q 'R2B-PATCH DONE B1=1 B2=1' patch-kuwo-r2b.log || { echo '!! R2b 双桥计数不达预期'; exit 1; }
           cat patch-evidence.txt patch-evidence-r2b.txt > patch-evidence-all.txt
 
-      - name: patch 自检（五桩落位 + 残活门，bash -e 计数 || true 兜底）
+      - name: patch 自检（四桩落位 + P1 撤销验证 + 残活门，bash -e 计数 || true 兜底）
         run: |
           cd work
-          echo "== 3b2 P1: c.smali h()V 体首 return-void =="
-          grep -A2 '.method public static h()V' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali | head -4
+          echo "== 3b2 P1(撤销验证): c.smali h()V 无 return-void 桩（round5）=="
+          S=$(grep -A3 '.method public static h()V' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali | { grep -c 'KUWO3B2-P1 return-void inserted' || true; })
+          echo "P1 历史桩残留=$S（须 0，非 0=工作树污染）"; [ "$S" = "0" ] || exit 1
           echo "== R2b B2: q1.b.a init → nop（残活须 0）=="
           R=$(grep -A20 '.method private static a(Lq1/a;)V' mod_src/smali*/q1/b.smali | grep -v '^[[:space:]]*#' | { grep -c 'Lq1/a;->init()V' || true; })
           echo "q1.b.a init 残活=$R（须 0）"; [ "$R" = "0" ] || { grep -A20 '.method private static a(Lq1/a;)V' mod_src/smali*/q1/b.smali | grep 'Lq1/a;->init'; exit 1; }
@@ -147,8 +148,8 @@ jobs:
           for N in $(python3 -c "import json;print(' '.join(sorted(set(v[0] for v in json.load(open('pile-dex-map.json')).values()))))"); do
             java -Xmx4g -jar /usr/local/bin/baksmali.jar d "$N" -o "chk-${N%.dex}"
           done
-          echo "== 五桩验证（find 循环定位，防路径写死）=="
-          echo "-- P1: c.h()V 首指令 return-void --"
+          echo "== 四桩验证（find 循环定位，防路径写死；P1 已撤销不验 return-void）=="
+          echo "-- P1(撤销验证): c.h()V 无 return-void 桩 --"
           for f in $(find chk-classes* -path '*mod/mobilead/tmead/c.smali'); do awk '/\.method public static h\(\)V/,/\.end method/' "$f" | head -5; done
           echo "-- B2: q1.b.a init 已 nop --"
           for f in $(find chk-classes* -path '*/q1/b.smali'); do awk '/\.method private static a\(Lq1\/a;\)V/,/\.end method/' "$f" | grep -E 'nop|init' | head -5; done
@@ -170,7 +171,7 @@ jobs:
           cp work/signed.apk "work/$OUT"
           cp work/sha256-kuwo3b2.txt work/sha256-r${N}.txt
           gh release create "kuwo3-round${N}" --title "KUWO 净化重打包 round ${N}（3b2 三桩 + R2b 双桥）" \
-            --notes "round${N} patch 全集 5 处：3b2 三桩（TMEAds init 枢纽 return-void + rif 2 init nop + fireeye 2 invoke nop）+ R2b 双桥（q1.b.a init 2×nop=QQ频道 config 永不喂入 + uilib.m F 按值过滤=QQ频道文案直显拦截）。宁残骸不断链；本线自签 keystore CN=KUWO-Purify v1v2v3。run ${GITHUB_RUN_ID}" \
+            --notes "round${N} patch 全集 4 处（P1 已撤销=round4 实测殃及 BirthScreenHelper 致 NPE）：rif 2 init nop + fireeye 2 invoke nop + q1.b.a init 2×nop（QQ频道 config 永不喂入）+ uilib.m F 按值过滤（文案直显拦截）。宁残骸不断链；本线自签 keystore CN=KUWO-Purify v1v2v3。run ${GITHUB_RUN_ID}" \
             "work/$OUT" work/patch-kuwo3b2.log work/patch-kuwo-r2b.log work/patch-evidence-all.txt work/verify-kuwo3b2.txt work/sha256-r${N}.txt
           {
             echo "# KUWO round ${N} 构建报告（run ${GITHUB_RUN_ID}）"
@@ -178,15 +179,15 @@ jobs:
             echo "- 产物：Release kuwo3-round${N} / ${OUT}"
             echo "- sha256：$(cut -d' ' -f1 work/sha256-kuwo3b2.txt)"
             echo "- 大小：$(stat -c %s "work/$OUT") B"
-            echo "- patch 全集 5 处：P1=1（c.h()V return-void）/ P2=2（b3/a init nop）/ P3=2（sd/d FireEye nop）/ B2=1（q1.b.a init 2×nop）/ B1=1（uilib.m F 按值过滤）——3b2+R2b 点位全集，其余未碰"
+            echo "- patch 全集 4 处（round5，P1 已撤销=老马 r4 实测副作用）：P2=2（b3/a init nop）/ P3=2（sd/d FireEye nop）/ B2=1（q1.b.a init 2×nop）/ B1=1（uilib.m F 按值过滤）——其余未碰"
             echo "- 签名：本线 keystore CN=KUWO-Purify（cert sha256 见 verify-kuwo3b2.txt），v1+v2+v3"
-            echo "- 验证：apksigner verify 过 + 五桩 dex 反解 + dex 数 15"
+            echo "- 验证：apksigner verify 过 + 四桩 dex 反解（P1 已撤销）+ dex 数 15"
             echo "- 版本一致性：round 单源=Release tag kuwo3-round${N} 自动递增（${LAST:-无}→${N}）"
           } > docs/kuwo3b2-build-report.md
           git config user.name "codery-ci"
           git config user.email "codery-ci@noreply"
           git add docs/kuwo3b2-build-report.md
-          git commit -m "docs(KUWO): round ${N} 净化构建——3b2 三桩+R2b 双桥（apk 见 Release kuwo3-round${N}）" || echo "无变更"
+          git commit -m "docs(KUWO): round ${N} 净化构建——P1 撤销+四桩（apk 见 Release kuwo3-round${N}）" || echo "无变更"
           git pull --rebase origin main && git push origin main
           echo "== 产物 $OUT sha=$(cut -d' ' -f1 work/sha256-kuwo3b2.txt) size=$(stat -c %s "work/$OUT")"
 
