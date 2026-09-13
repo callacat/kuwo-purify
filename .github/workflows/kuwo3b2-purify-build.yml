@@ -143,8 +143,12 @@ jobs:
           import json
           json.dump(opens, open('pile-dex-map.json', 'w'))
           print(opens)
+          # MUST：把各桩 dex 从 zip 解出落盘（round5 实锤：只定位不解出，baksmali 读不到）
+          import os
+          for ns in set(v[0] for v in opens.values()):
+              if not os.path.exists(ns):
+                  open(ns, 'wb').write(z.read(ns))
           EOF
-          # pile-dex-map.json 在 work 内，此时 cwd 已是 work；JSON 路径相对化（round4 实锤 cd work 重复报错）
           for N in $(python3 -c "import json;print(' '.join(sorted(set(v[0] for v in json.load(open('pile-dex-map.json')).values()))))"); do
             java -Xmx4g -jar /usr/local/bin/baksmali.jar d "$N" -o "chk-${N%.dex}"
           done
