@@ -31,29 +31,28 @@ def record(tag, path, before_lines, idx, after_lines, label):
 # ---------- 桥②：q1.b.a(Lq1/a;)V init invoke → 2×nop ----------
 p2 = find_file('q1/b.smali')
 if not p2:
-    print('R2B-PATCH FATAL B2: q1/b.smali 未找到'); sys.exit(1)
+    print('R2B-PATCH FATAL B2(撤销模式): q1/b.smali 未找到'); sys.exit(1)
+# round6：B2 撤销（老马 ACE5 实测副作用：q1.b.a init→2×nop 同时切断 mobilead.u.Eq 路径上
+# BirthScreenHelper 单例依赖 → NPE 每次冷启动必崩；r1 无 B2 不崩、r5 有 B2 崩=副作用实锤）。
+# 撤销方式=不插桩，仅验证 a(Lq1/a;)V 存在且无历史 nop 桩残留（防 round5 工作树污染），fail-fast。
 lines = open(p2, encoding='utf-8').read().split('\n')
-out, in_m, hit2 = [], False, 0
-for idx, ln in enumerate(lines):
+in_m, found, stub = False, False, 0
+for ln in lines:
     if re.match(r'^\.method\s+', ln):
         in_m = bool(re.match(r'^\.method private static a\(Lq1/a;\)V\s*$', ln))
-        out.append(ln); continue
-    if ln.strip() == '.end method':
-        in_m = False; out.append(ln); continue
-    if in_m and re.search(r'invoke-interface\s+\{p0\},\s*Lq1/a;->init\(\)V', ln):
-        indent = re.match(r'\s*', ln).group(0)
-        out.append(indent + 'nop')
-        out.append(indent + 'nop')
-        out.append(indent + '# R2B-B2 invoke-interface(2 units)→2×nop 等宽替换')
-        out.append(indent + '# R2B-B2 原行: ' + ln.strip())
-        record('B2', p2, lines, idx, out, label='a(Lq1/a;)V init')
-        hit2 += 1
         continue
-    out.append(ln)
-if hit2 != 1:
-    print(f'R2B-PATCH FATAL B2: init invoke 命中 {hit2} != 1'); sys.exit(1)
-open(p2, 'w', encoding='utf-8').write('\n'.join(out))
-print('B2 done: q1.b.a(Lq1/a;)V init → 2×nop')
+    if ln.strip() == '.end method':
+        in_m = False
+        continue
+    if in_m and re.search(r'invoke-interface\s+\{p0\},\s*Lq1/a;->init\(\)V', ln):
+        found = True
+    if in_m and re.match(r'^\s*nop\s*$', ln):
+        stub += 1
+if not found:
+    print('R2B-PATCH FATAL B2(撤销模式): q1.b.a init invoke 未找到(签名漂移?)'); sys.exit(1)
+if stub:
+    print(f'R2B-PATCH FATAL B2(撤销模式): a(Lq1/a;)V 内有 {stub} 个 nop 桩残留——工作树污染,重跑 apktool d'); sys.exit(1)
+print('B2 done(撤销模式): q1.b.a(Lq1/a;)V init 保持原样，无 nop 桩（round6，r5 副作用修复）')
 
 # ---------- 桥①：uilib.m F(String,Z) 体首值过滤 ----------
 p1 = find_file('cn/kuwo/base/uilib/m.smali')
@@ -90,5 +89,35 @@ if hit1 != 1:
 open(p1, 'w', encoding='utf-8').write('\n'.join(out))
 print('B1 done: uilib.m F(String,Z) 体首值过滤跳转')
 
+# ---------- C1 兜底（老马指令③）：specialdialogconfig.a.init() 体首 return-void ----------
+# B1 单独不够时，config 字段填充永不执行（渲染端拿空 config 自然跳过）；
+# 该类在 mod 未动区（官方原版自带），只被 q1.b.a 喂入调用（R2b 静态确认唯一喂入口），
+# 掐 init 体不碰 q1.b 桥与 mobilead.u.Eq→BirthScreenHelper 依赖链（r5 副作用根因）。
+pc = find_file('cn/kuwo/peculiar/specialdialogconfig/a.smali')
+if not pc:
+    print('R2B-PATCH FATAL C1: specialdialogconfig/a.smali 未找到'); sys.exit(1)
+lines = open(pc, encoding='utf-8').read().split('\n')
+out, in_m, hitc = [], False, 0
+for idx, ln in enumerate(lines):
+    if re.match(r'^\.method\s+', ln):
+        in_m = bool(re.match(r'^\.method public init\(\)V\s*$', ln))
+        out.append(ln); continue
+    if ln.strip() == '.end method':
+        in_m = False; out.append(ln); continue
+    if in_m and (re.match(r'^\s*\.registers\s+\d+', ln) or re.match(r'^\s*\.locals\s+\d+', ln)):
+        indent = re.match(r'\s*', ln).group(0)
+        out.append(ln)
+        out.append(indent + 'return-void')
+        out.append(indent + '# R2B-C1 init 体首 return-void（round6 兜底: config 字段填充永不执行,渲染端拿空 config;不碰 q1.b 桥与 mobilead 依赖链）')
+        record('C1', pc, lines, idx, out, label='specialdialogconfig.a.init()')
+        hitc += 1
+        in_m = False
+        continue
+    out.append(ln)
+if hitc != 1:
+    print(f'R2B-PATCH FATAL C1: specialdialogconfig.a.init() 锚定 {hitc} != 1'); sys.exit(1)
+open(pc, 'w', encoding='utf-8').write('\n'.join(out))
+print('C1 done: specialdialogconfig.a.init() 体首 return-void')
+
 ev.close()
-print('R2B-PATCH DONE B1=1 B2=1')
+print('R2B-PATCH DONE B1=1 B2=0(revoked) C1=1')

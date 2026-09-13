@@ -73,7 +73,7 @@ jobs:
           python3 ../scripts/kuwo3b2_patch.py mod_src patch-evidence.txt | tee patch-kuwo3b2.log
           grep -q 'KUWO3B2-PATCH DONE P1=1 P2=2 P3=2' patch-kuwo3b2.log || { echo '!! 3b2 计数不达预期（P1=撤销模式验证）'; exit 1; }
           python3 ../scripts/kuwo_r2b_patch.py mod_src patch-evidence-r2b.txt | tee patch-kuwo-r2b.log
-          grep -q 'R2B-PATCH DONE B1=1 B2=1' patch-kuwo-r2b.log || { echo '!! R2b 双桥计数不达预期'; exit 1; }
+          grep -q 'R2B-PATCH DONE B1=1 B2=0(revoked) C1=1' patch-kuwo-r2b.log || { echo '!! R2b round6 计数不达预期（B2 撤销+B1+C1 兜底）'; exit 1; }
           cat patch-evidence.txt patch-evidence-r2b.txt > patch-evidence-all.txt
 
       - name: patch 自检（四桩落位 + P1 撤销验证 + 残活门，bash -e 计数 || true 兜底）
@@ -82,9 +82,11 @@ jobs:
           echo "== 3b2 P1(撤销验证): c.smali h()V 无 return-void 桩（round5）=="
           S=$(grep -A3 '.method public static h()V' mod_src/smali*/cn/kuwo/mod/mobilead/tmead/c.smali | { grep -c 'KUWO3B2-P1 return-void inserted' || true; })
           echo "P1 历史桩残留=$S（须 0，非 0=工作树污染）"; [ "$S" = "0" ] || exit 1
-          echo "== R2b B2: q1.b.a init → nop（残活须 0）=="
-          R=$(grep -A20 '.method private static a(Lq1/a;)V' mod_src/smali*/q1/b.smali | grep -v '^[[:space:]]*#' | { grep -c 'Lq1/a;->init()V' || true; })
-          echo "q1.b.a init 残活=$R（须 0）"; [ "$R" = "0" ] || { grep -A20 '.method private static a(Lq1/a;)V' mod_src/smali*/q1/b.smali | grep 'Lq1/a;->init'; exit 1; }
+          echo "== R2b B2(撤销验证): q1.b.a init invoke 必须在（round6 恢复官方逻辑）=="
+          R=$(grep -A20 '.method private static a(Lq1/a;)V' mod_src/smali*/q1/b.smali | { grep -c 'Lq1/a;->init()V' || true; })
+          echo "q1.b.a init invoke 数=$R（须 1）"; [ "$R" = "1" ] || { echo '!! B2 撤销失败: init invoke 不在'; exit 1; }
+          echo "== R2b C1: specialdialogconfig.a.init 体首 return-void 落位 =="
+          grep -A3 '.method public init()V' mod_src/smali*/cn/kuwo/peculiar/specialdialogconfig/a.smali | head -4
           echo "== R2b B1: uilib.m F 体首值过滤落位 =="
           grep -A8 '.method public static F(Ljava/lang/String;Z)V' mod_src/smali*/cn/kuwo/base/uilib/m.smali | head -9
           echo "== 残活门: b3/a 与 sd/d init 残活须 0 =="
@@ -175,7 +177,7 @@ jobs:
           cp work/signed.apk "work/$OUT"
           cp work/sha256-kuwo3b2.txt work/sha256-r${N}.txt
           gh release create "kuwo3-round${N}" --title "KUWO 净化重打包 round ${N}（3b2 三桩 + R2b 双桥）" \
-            --notes "round${N} patch 全集 4 处（P1 已撤销=round4 实测殃及 BirthScreenHelper 致 NPE）：rif 2 init nop + fireeye 2 invoke nop + q1.b.a init 2×nop（QQ频道 config 永不喂入）+ uilib.m F 按值过滤（文案直显拦截）。宁残骸不断链；本线自签 keystore CN=KUWO-Purify v1v2v3。run ${GITHUB_RUN_ID}" \
+            --notes "round${N} patch 全集 4 处（P1/B2 已撤销=真机实测殃及 BirthScreenHelper 致 NPE）：rif 2 init nop + fireeye 2 invoke nop + uilib.m F 按值过滤（QQ频道文案直显拦截）+ specialdialogconfig.a.init 体首 return-void（config 填充兜底，不碰 q1.b 桥）。宁残骸不断链；本线自签 keystore CN=KUWO-Purify v1v2v3。run ${GITHUB_RUN_ID}" \
             "work/$OUT" work/patch-kuwo3b2.log work/patch-kuwo-r2b.log work/patch-evidence-all.txt work/verify-kuwo3b2.txt work/sha256-r${N}.txt
           {
             echo "# KUWO round ${N} 构建报告（run ${GITHUB_RUN_ID}）"
@@ -183,15 +185,15 @@ jobs:
             echo "- 产物：Release kuwo3-round${N} / ${OUT}"
             echo "- sha256：$(cut -d' ' -f1 work/sha256-kuwo3b2.txt)"
             echo "- 大小：$(stat -c %s "work/$OUT") B"
-            echo "- patch 全集 4 处（round5，P1 已撤销=老马 r4 实测副作用）：P2=2（b3/a init nop）/ P3=2（sd/d FireEye nop）/ B2=1（q1.b.a init 2×nop）/ B1=1（uilib.m F 按值过滤）——其余未碰"
+            echo "- patch 全集 4 处（round6：P1/B2 均撤销=真机实测副作用）：P2=2（b3/a init nop）/ P3=2（sd/d FireEye nop）/ B1=1（uilib.m F 按值过滤）/ C1=1（specialdialogconfig.a.init 体首 return-void 兜底）——其余未碰"
             echo "- 签名：本线 keystore CN=KUWO-Purify（cert sha256 见 verify-kuwo3b2.txt），v1+v2+v3"
-            echo "- 验证：apksigner verify 过 + 四桩 dex 反解（P1 已撤销）+ dex 数 15"
+            echo "- 验证：apksigner verify 过 + 四桩 dex 反解（P1/B2 已撤销）+ dex 数 15"
             echo "- 版本一致性：round 单源=Release tag kuwo3-round${N} 自动递增（${LAST:-无}→${N}）"
           } > docs/kuwo3b2-build-report.md
           git config user.name "codery-ci"
           git config user.email "codery-ci@noreply"
           git add docs/kuwo3b2-build-report.md
-          git commit -m "docs(KUWO): round ${N} 净化构建——P1 撤销+四桩（apk 见 Release kuwo3-round${N}）" || echo "无变更"
+          git commit -m "docs(KUWO): round ${N} 净化构建——P1/B2 撤销+四桩（apk 见 Release kuwo3-round${N}）" || echo "无变更"
           git pull --rebase origin main && git push origin main
           echo "== 产物 $OUT sha=$(cut -d' ' -f1 work/sha256-kuwo3b2.txt) size=$(stat -c %s "work/$OUT")"
 
