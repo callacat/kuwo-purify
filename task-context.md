@@ -38,3 +38,10 @@
 - 净化清单（相对天天 mod）：R2b 双桥掐断（uilib.m.F「QQ频道」值过滤 + specialdialogconfig config 喂入口 nop）+ R1 P2/P3 埋点 init nop + 作者开屏 2 刀保留
 - 本机已清：样本/旧轮 APK/解码树/调试帧（权威源=Release 各 tag），剩 r6 产物+证据+文档
 - 教训沉淀：掐 bridge 桥类（q1.b.a）会殃及同链无关初始化——掐点必须验证依赖面（r4/r5 两轮实锤）
+
+## 临时文件清理纪律（09-13 东哥定调）
+- 任务完成即清：样本副本/旧轮 APK/解码树/调试帧/临时脚本——同轮清完，不留到下次
+- 保留判据：实物凭证（最终产物+sha256 清单+验收截图+patch-evidence+判定书+task-context）
+- 手机侧：frida-server 等注入工具用完即卸（`rm /data/local/tmp/frida-server`），重启虽可清但主动删是本分
+- 权威源=GitHub Release 各 tag（samples/artifacts/round1-round6），本机副本可再生即删
+- 本机清理后：1.9G→16M；/tmp 全净（91 项临时文件清除）；手机侧 frida-server 已删+重启验证网络恢复
