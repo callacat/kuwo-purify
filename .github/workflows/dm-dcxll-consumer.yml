@@ -1,0 +1,81 @@
+name: dm-dcxll-consumer
+
+# DM-1 W5：东明版 assets/dcxll 消费方定位 + 官方基线 4 条目对拍（rid recvvcvacUOp2j）
+# 配方继承 W1/kuwo-crack-audit：重活全在 runner，CT110/本机零重活（D7 红线）；无需 baksmali（smali 走 W1 产物 tar）。
+# bash -e 下 grep 空结果一律 if/|| true；W1 产物拉取 fail-fast。
+# 偏离派单一点并留痕：step2 除东明 apk 外同时拉官方基线——脚本职责⑤「4 件与官方同路径条目 sha256 对拍」
+# 必需官方 apk（仓库无预登记条目 sha），写法同 W1；两枚 sha256 均硬校验。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  consumer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: 拉东明样本+官方基线 + sha256 硬校验
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work
+          gh release download dm-samples -R "$GITHUB_REPOSITORY" \
+            -p 'dongming-kuwo-12.2.2.0.apk' -p 'kuwo-12.2.2.0-official.apk' -D work
+          echo "50251119906266d50b872af8de4372c95b40548e175630b85af918e985d43588  work/dongming-kuwo-12.2.2.0.apk" | sha256sum -c -
+          echo "04d89f31046d544be00a0c413bc5ea3ddd4040d3157bd2e96ca7a9194df0c882  work/kuwo-12.2.2.0-official.apk" | sha256sum -c -
+          df -h .
+
+      - name: 拉 W1 产物 dm1-smali-mod（fail-fast：缺失先跑 dm-dex-method-diff）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work/in1
+          gh release download dm1-artifacts -R "$GITHUB_REPOSITORY" -p 'dm1-smali-mod.tar.gz' -D work/in1
+          test -f work/in1/dm1-smali-mod.tar.gz || { echo "FATAL: W1 产物缺失，先跑 dm-dex-method-diff"; exit 1; }
+
+      - name: W5 主脚本（Java 消费方 + so strings + dcxll 条目对拍）
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/dm5_dcxll.py "$PWD/work" 2>&1 | tee work/dm5-run.log
+          if grep -q '\[dm5\]' work/dm5-run.log; then echo OK; else echo "FATAL: dm5 未正常收口"; exit 1; fi
+          ls -la work/dm-out
+
+      - name: 回写报告到 docs/dm/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p docs/dm
+          cp work/dm-out/dm5-dcxll-consumer.md docs/dm/dm5-dcxll-consumer.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/dm/
+          git commit -m "docs(DM-1): W5 assets/dcxll 消费方定位与条目对拍（CI 回写）" || echo "无变更"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin main && { ok=1; break; }
+            sleep $((i * 4))
+          done
+          test "$ok" = 1 || { echo "FATAL: docs 推送失败"; exit 1; }
+
+      - name: 上传素材到 Release dm1-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          gh release create dm1-artifacts --title "DM-1 深审素材线产物（W1-W5）" --notes "东明版酷我深审素材产物。样本本体在 dm-samples。" 2>/dev/null || true
+          cd work/dm-out
+          # so-hits 无命中时脚本不落盘（属正常），逐文件 || true
+          gh release upload dm1-artifacts dm5-consumer-hits.tsv --clobber || true
+          gh release upload dm1-artifacts dm5-dcxll-entries.tsv --clobber || true
+          gh release upload dm1-artifacts dm5-so-hits.txt --clobber || true
+
+      - name: 清理版权物
+        if: always()
+        run: rm -rf "$GITHUB_WORKSPACE/work" || true

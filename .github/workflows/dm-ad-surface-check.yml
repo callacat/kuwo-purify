@@ -1,0 +1,98 @@
+name: dm-ad-surface-check
+
+# DM-1 W2：东明版去广告点位分桶 × 天天版截断交叉 × ad 桶掐净度（rid recvvcvacUOp2j）
+# 配方继承 kuwo-crack-audit / W1 dm-dex-method-diff：重活全在 runner，CT110/本机零重活（D7）。
+# 输入=Release dm1-artifacts（W1 四件套）+ kuwo1-artifacts（天天版分段归档，只读素材）。
+# bash -e 纪律：可失败命令尾缀 || true + 显式断言；grep 放 if 条件里（老线三败根因）。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ad-surface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: 拉 W1 产物 + fail-fast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work/in1 work/intt
+          cd work
+          gh release download dm1-artifacts -R "$GITHUB_REPOSITORY" \
+            -p 'dm1-return-truncated.tsv' -p 'dm1-method-changes.tsv' \
+            -p 'dm1-new-classes.tsv' -p 'dm1-smali-mod.tar.gz' -D in1 || true
+          for F in dm1-return-truncated.tsv dm1-method-changes.tsv dm1-new-classes.tsv dm1-smali-mod.tar.gz; do
+            test -f "in1/$F" || { echo "FATAL: W1 产物缺失（in1/$F），先跑 dm-dex-method-diff"; exit 1; }
+          done
+
+      - name: 拉天天版基线分段归档 + fail-fast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd work
+          gh release download kuwo1-artifacts -R "$GITHUB_REPOSITORY" \
+            -p 'kuwo1-diff-baksmali.tar.gz' -D intt || true
+          test -f intt/kuwo1-diff-baksmali.tar.gz || { echo "FATAL: 天天版基线归档缺失（kuwo1-artifacts / kuwo1-diff-baksmali.tar.gz）"; exit 1; }
+          df -h .
+
+      - name: 解包两个归档
+        run: |
+          cd work
+          tar xzf in1/dm1-smali-mod.tar.gz
+          tar xzf intt/kuwo1-diff-baksmali.tar.gz -C intt
+          test -d smali-mod || { echo "FATAL: smali-mod.tar.gz 顶层非 smali-mod/"; exit 1; }
+          test -d intt/kuwo1-diff-baksmali || { echo "FATAL: kuwo1 归档顶层非 kuwo1-diff-baksmali/"; exit 1; }
+          M=$(find smali-mod -name '*.smali' | wc -l)
+          T=$(find intt/kuwo1-diff-baksmali -name '*.smali' | wc -l)
+          echo "smali-mod=$M kuwo1-archive=$T"
+          test "$M" -gt 50000 || { echo "FATAL: smali-mod 文件数异常（$M）"; exit 1; }
+          test "$T" -gt 100 || { echo "FATAL: 天天版归档文件数异常（$T）"; exit 1; }
+
+      - name: W2 分桶+交叉+掐净度
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/dm2_ad_surface.py "$PWD" 2>&1 | tee work/dm2-run.log
+          if ! grep -q '\[dm2\]' work/dm2-run.log; then echo "FATAL: W2 脚本未正常收口"; exit 1; fi
+          cd work/dm-out
+          test -s dm2-trunc-buckets.tsv || { echo "FATAL: dm2-trunc-buckets.tsv 缺失/空"; exit 1; }
+          test -s dm2-cross.tsv || { echo "FATAL: dm2-cross.tsv 缺失/空"; exit 1; }
+          test -s dm2-ad-residual.tsv || { echo "FATAL: dm2-ad-residual.tsv 缺失/空"; exit 1; }
+          test -s dm2-ad-surface.md || { echo "FATAL: dm2-ad-surface.md 缺失/空"; exit 1; }
+          wc -l *.tsv *.md
+
+      - name: 回写报告到 docs/dm/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p docs/dm
+          cp work/dm-out/dm2-ad-surface.md docs/dm/dm2-ad-surface.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/dm/dm2-ad-surface.md
+          git commit -m "docs(DM-1): W2 去广告点位与天天版交叉分列（CI 回写）" || echo "无变更"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin main && { ok=1; break; }
+            sleep $((i * 4))
+          done
+          test "$ok" = 1 || { echo "FATAL: docs 推送失败"; exit 1; }
+
+      - name: 上传 W2 表到 Release dm1-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          gh release create dm1-artifacts --title "DM-1 深审素材线产物（W1-W5）" --notes "东明版酷我深审素材产物。样本本体在 dm-samples。" 2>/dev/null || true
+          gh release upload dm1-artifacts work/dm-out/dm2-trunc-buckets.tsv work/dm-out/dm2-cross.tsv work/dm-out/dm2-ad-residual.tsv --clobber
+
+      - name: 清理样本产物
+        if: always()
+        run: rm -rf "$GITHUB_WORKSPACE/work" || true

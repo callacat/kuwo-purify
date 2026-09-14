@@ -1,0 +1,131 @@
+name: dm-author-code-decompile
+
+# DM-1 W4：东明版酷我 12.2.2.0 作者自有类（DM-0 实锤 90 类）jadx 全文反编译 + 八组提取 + 网络命中面自动专节。
+# 配方继承 dm-dex-method-diff（W1）：重活全在 runner，CT110/本机零重活（D7）。
+# 作者类分布：com.dm.dia→classes18；com.vip.yf/com.kw.cj/njggg/kwpass.KpkUtilX→classes17；
+#             abcdefgaaa→classes18；rj.lddne(provider)→classes9；nt.phkc→classes16。
+# bash -e 下所有可能空结果的 grep/find 一律 if/|| true + 显式断言（W1 修复史纪律）。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 拉样本 + sha256 硬校验
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work && cd work
+          gh release download dm-samples -R "$GITHUB_REPOSITORY" \
+            -p 'dongming-kuwo-12.2.2.0.apk' -p 'kuwo-12.2.2.0-official.apk' -D .
+          echo "50251119906266d50b872af8de4372c95b40548e175630b85af918e985d43588  dongming-kuwo-12.2.2.0.apk" | sha256sum -c -
+          echo "04d89f31046d544be00a0c413bc5ea3ddd4040d3157bd2e96ca7a9194df0c882  kuwo-12.2.2.0-official.apk" | sha256sum -c -
+          df -h .
+
+      - name: 抽取目标 4 dex
+        run: |
+          cd work
+          python3 - <<'EOF'
+          import zipfile, os
+          os.makedirs('dex', exist_ok=True)
+          z = zipfile.ZipFile('dongming-kuwo-12.2.2.0.apk')
+          for n in ('classes9.dex', 'classes16.dex', 'classes17.dex', 'classes18.dex'):
+              with open(os.path.join('dex', n), 'wb') as f:
+                  f.write(z.read(n))
+              print('extracted', n, os.path.getsize(os.path.join('dex', n)))
+          EOF
+          for F in classes9 classes16 classes17 classes18; do
+            test -f "dex/$F.dex" || { echo "FATAL: dex/$F.dex 抽取缺失"; exit 1; }
+          done
+
+      - name: 安装反编译器（jadx latest，iopkg 发布镜像）
+        run: |
+          JTAG=$(curl -s https://api.github.com/repos/iopkg/jadx/releases/latest | jq -r .tag_name || true)
+          test -n "$JTAG" && test "$JTAG" != "null" || { echo "FATAL: 取版本失败"; exit 1; }
+          echo "JADX_TAG=$JTAG"
+          # /opt 为 root 所有，托管 runner 普通用户需 sudo 建目录并授权给自己
+          sudo mkdir -p /opt/jdx && sudo chown "$(id -un)" /opt/jdx
+          cd /opt/jdx
+          curl -sSL -o jdx.zip "https://github.com/iopkg/jadx/releases/download/${JTAG}/jadx-${JTAG#v}.zip"
+          unzip -q jdx.zip && chmod +x bin/jadx && bin/jadx --version
+
+      - name: 逐 dex 反编译（单 dex 直喂）
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p work/jdx
+          for N in 9 16 17 18; do
+            JAVA_OPTS="-Xmx6g" /opt/jdx/bin/jadx --no-res --no-debug-info --no-imports --show-bad-code -j 2 -d "work/jdx/out$N" "work/dex/classes$N.dex" || echo "JADX_WARN: classes$N rc=$?"
+          done
+          # 断言：9/17/18 必须出 sources（FATAL）；classes16 允许无产物仅告警（G8 缺失由 dm4 阶段最终把关）；
+          # 且四个 out 目录至少 3 个有 sources。find 无目录时以 2>/dev/null + || true 兜住空结果。
+          CNT9=$(find work/jdx/out9/sources -name '*.java' 2>/dev/null | wc -l || true)
+          CNT16=$(find work/jdx/out16/sources -name '*.java' 2>/dev/null | wc -l || true)
+          CNT17=$(find work/jdx/out17/sources -name '*.java' 2>/dev/null | wc -l || true)
+          CNT18=$(find work/jdx/out18/sources -name '*.java' 2>/dev/null | wc -l || true)
+          echo "sources java 文件数: c9=$CNT9 c16=$CNT16 c17=$CNT17 c18=$CNT18"
+          test "$CNT9" -gt 0 || { echo "FATAL: classes9 反编译无 sources（G7 provider 必需）"; exit 1; }
+          test "$CNT17" -gt 0 || { echo "FATAL: classes17 反编译无 sources（G2/G3/G4/G6 必需）"; exit 1; }
+          test "$CNT18" -gt 0 || { echo "FATAL: classes18 反编译无 sources（G1/G5 必需）"; exit 1; }
+          if [ "$CNT16" -eq 0 ]; then echo "JADX_WARN: classes16 无 sources（仅 G8 nt.phkc 受影响，dm4 阶段将最终判缺）"; fi
+          NOK=0
+          for V in "$CNT9" "$CNT16" "$CNT17" "$CNT18"; do
+            if [ "$V" -gt 0 ]; then NOK=$((NOK + 1)); fi
+          done
+          test "$NOK" -ge 3 || { echo "FATAL: 有 sources 的 out 目录不足 3 个"; exit 1; }
+
+      - name: 八组提取 + 网络命中面专节
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/dm4_extract.py "$PWD/work" 2>&1 | tee work/dm4-run.log
+          if grep -q '\[dm4\]' work/dm4-run.log; then echo "dm4 gate OK"; else echo "FATAL: dm4 未正常收口"; exit 1; fi
+
+      - name: Java 全文打包
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          tar czf work/dm-out/dm4-author-java.tar.gz -C work/dm-out java
+          du -h work/dm-out/dm4-author-java.tar.gz
+
+      - name: 回写报告到 docs/dm/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p docs/dm
+          cp work/dm-out/dm4-author-code.md docs/dm/dm4-author-code.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/dm/
+          git commit -m "docs(DM-1): W4 作者自有类反编译八组+网络命中面（CI 回写）" || echo "无变更"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin main && { ok=1; break; }
+            sleep $((i * 4))
+          done
+          test "$ok" = 1 || { echo "FATAL: docs 推送失败"; exit 1; }
+
+      - name: 上传素材到 Release dm1-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          gh release create dm1-artifacts --title "DM-1 深审素材线产物（W1-W5）" --notes "东明版酷我深审素材产物。样本本体在 dm-samples。" 2>/dev/null || true
+          gh release upload dm1-artifacts work/dm-out/dm4-author-java.tar.gz --clobber
+
+      - name: 清理版权物
+        if: always()
+        run: rm -rf "$GITHUB_WORKSPACE/work" || true

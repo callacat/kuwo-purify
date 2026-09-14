@@ -1,0 +1,107 @@
+name: dm-native-so-audit
+
+# DM-1 W3：东明版 vs 官方 净新增 3 so（libkijhhh/libabcdefgaaa/libdiacore, arm64-v8a）深查
+#   + 官方同名 sha256 对拍 + 老线样本（天天版/红果/番茄）so 哈希交叉（rid recvvcvacUOp2j）
+# 配方继承 kuwo-crack-audit / dm-dex-method-diff：重活（zipfile 解包+readelf/strings/size）全在 runner，
+#   CT110/本机零重活（D7 红线）。Java 层明文 0 非厂商域名 → C2 嫌疑集中这 3 so。
+# 老线哈希命中=供应链关联登记事实不下结论；诚实口径（未发现≠无网络）由脚本写进报告。
+# cross 样本尽力而为：gh 下载缺失不 FATAL，全缺也照跑（空目录对拍=0 行 0 命中）。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ github.token }}
+
+      - name: 拉样本 + sha256 硬校验
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work && cd work
+          gh release download dm-samples -R "$GITHUB_REPOSITORY" \
+            -p 'dongming-kuwo-12.2.2.0.apk' -p 'kuwo-12.2.2.0-official.apk' -D .
+          echo "50251119906266d50b872af8de4372c95b40548e175630b85af918e985d43588  dongming-kuwo-12.2.2.0.apk" | sha256sum -c -
+          echo "04d89f31046d544be00a0c413bc5ea3ddd4040d3157bd2e96ca7a9194df0c882  kuwo-12.2.2.0-official.apk" | sha256sum -c -
+          mv dongming-kuwo-12.2.2.0.apk dongming.apk
+          mv kuwo-12.2.2.0-official.apk official.apk
+          df -h .
+
+      - name: 备老线交叉样本（尽力而为,缺失不算失败）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p work/cross
+          gh release download samples -R callacat/kuwo-purify -p 'kuwo-12.2.2.0-tiantian-mod.apk' -D work/cross --clobber || echo "MISS kuwo-purify samples"
+          gh release download samples -R callacat/hongguo-audit -p 'hongguo-v7.3.6.32-crack.apk' -D work/cross --clobber || echo "MISS hongguo samples"
+          gh release download samples -R callacat/fanqie-adfree-builder -p 'fanqie-73368-mod-218M.apk' -p 'fanqiehook-040.apk' -D work/cross --clobber || echo "MISS fanqie samples"
+          : > work/cross-status.txt
+          for F in kuwo-12.2.2.0-tiantian-mod.apk \
+                   hongguo-v7.3.6.32-crack.apk fanqie-73368-mod-218M.apk fanqiehook-040.apk; do
+            if test -f "work/cross/$F"; then
+              echo "OK $F" >> work/cross-status.txt
+            else
+              echo "MISS $F" >> work/cross-status.txt
+            fi
+          done
+          cat work/cross-status.txt
+
+      - name: 三净新增so深查+双侧/老线对拍
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/dm3_native_so.py "$PWD/work" 2>&1 | tee work/dm3-run.log
+          # 判活收紧：只认最终摘要行 `[dm3] new=`（中间 warn 行不算收口）
+          if grep -qE '\[dm3\] new=' work/dm3-run.log; then echo OK; else echo "FATAL: dm3 未正常收口"; exit 1; fi
+          for F in dm3-sha-cross.tsv dm3-xcheck.tsv dm3-native-so-audit.md; do
+            test -s "work/dm-out/$F" || { echo "FATAL: 缺 $F"; exit 1; }
+          done
+          du -h work/dm-out/* | sort -rh | head -30 || true
+
+      - name: 回写报告到 docs/dm/
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p docs/dm
+          cp work/dm-out/dm3-native-so-audit.md docs/dm/dm3-native-so-audit.md
+          git config user.name "codery-ci"
+          git config user.email "codery-ci@noreply"
+          git add docs/dm/
+          git commit -m "docs(DM-1): W3 三净新增so深查+官方/老线对拍（CI 回写）" || echo "无变更"
+          ok=0
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin main && { ok=1; break; }
+            sleep $((i * 4))
+          done
+          test "$ok" = 1 || { echo "FATAL: docs 推送失败"; exit 1; }
+
+      - name: 上传素材到 Release dm1-artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          gh release create dm1-artifacts --title "DM-1 深审素材线产物（W1-W5）" --notes "东明版酷我深审素材产物。样本本体在 dm-samples。" 2>/dev/null || true
+          cd work/dm-out
+          find . -maxdepth 1 -type f \( \
+            -name '*-imports.txt' -o -name '*-net-imports.txt' \
+            -o -name '*-strings-ascii.txt' -o -name '*-strings-utf16.txt' \
+            -o -name '*-hits.txt' -o -name '*-b64-decoded.txt' \
+            -o -name '*-elfmeta.txt' -o -name '*-exports.txt' \
+            -o -name 'dm3-sha-cross.tsv' -o -name 'dm3-xcheck.tsv' \
+            -o -name 'dm3-xcheck-hit.tsv' -o -name 'dm3-so-report-data.json' \
+            -o -name 'dm3-native-so-audit.md' \) -print0 | while IFS= read -r -d '' F; do
+            gh release upload dm1-artifacts "${F#./}" --clobber 2>/dev/null || echo "SKIP $F"
+          done
+          gh release upload dm1-artifacts "$GITHUB_WORKSPACE/work/dm3-run.log" --clobber 2>/dev/null || true
+          gh release upload dm1-artifacts "$GITHUB_WORKSPACE/work/cross-status.txt" --clobber 2>/dev/null || true
+
+      - name: 清理版权物
+        if: always()
+        run: rm -rf "$GITHUB_WORKSPACE/work" || true
