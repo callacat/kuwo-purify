@@ -55,16 +55,20 @@ jobs:
             test -f "dex/$F.dex" || { echo "FATAL: dex/$F.dex 抽取缺失"; exit 1; }
           done
 
-      - name: 安装反编译器（jadx latest，iopkg 发布镜像）
+      - name: 安装反编译器（skylot/jadx latest，gh api 带 token 防匿名限流；run 34854236962 教训=iopkg 镜像无 latest）
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          JTAG=$(curl -s https://api.github.com/repos/iopkg/jadx/releases/latest | jq -r .tag_name || true)
+          JTAG=$(gh api repos/skylot/jadx/releases/latest --jq .tag_name)
           test -n "$JTAG" && test "$JTAG" != "null" || { echo "FATAL: 取版本失败"; exit 1; }
           echo "JADX_TAG=$JTAG"
           # /opt 为 root 所有，托管 runner 普通用户需 sudo 建目录并授权给自己
           sudo mkdir -p /opt/jdx && sudo chown "$(id -un)" /opt/jdx
           cd /opt/jdx
-          curl -sSL -o jdx.zip "https://github.com/iopkg/jadx/releases/download/${JTAG}/jadx-${JTAG#v}.zip"
-          unzip -q jdx.zip && chmod +x bin/jadx && bin/jadx --version
+          # 精确资产名（glob jadx-*.zip 会误伤 jadx-gui-* 包）
+          gh release download "$JTAG" -R skylot/jadx -p "jadx-${JTAG#v}.zip" -D .
+          test -s "jadx-${JTAG#v}.zip" || { echo "FATAL: 工具包下载缺失"; exit 1; }
+          unzip -q "jadx-${JTAG#v}.zip" && chmod +x bin/jadx && bin/jadx --version
 
       - name: 逐 dex 反编译（单 dex 直喂）
         run: |
